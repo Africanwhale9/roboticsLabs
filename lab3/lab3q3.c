@@ -9,20 +9,12 @@ float Xr;
 float A;
 float diameter;
 float l;
-
+float k;
+float error;
+float tolerance;
 
 
 float getAngularVelRad(tMotor motor){
-	float first;
-	float second;
-	first = getMotorEncoder(motor);
-	sleep(10);
-	second = getMotorEncoder(motor);
-	float sign =  first-second;
-
-	if (sign<0){
-		return -((getMotorRPM(motor)*(2*PI))/60);
-	}
 
 
 	return ((getMotorRPM(motor)*(2*PI))/60);
@@ -30,11 +22,10 @@ float getAngularVelRad(tMotor motor){
 
 void anglechange(){
 	if(desiredAngle<0){
-		setMotorSyncEncoder(leftMotor, rightMotor, 100, (desiredAngle*2), 80);
-
+		setMotorSync (leftMotor, rightMotor, 100, k*error);
 	}
 	else{
-		setMotorSyncEncoder(leftMotor, rightMotor, -100, (desiredAngle*2), 80);
+		setMotorSync(leftMotor, rightMotor, -100,k*error);
 	}
 	sleep(1000);
 }
@@ -48,24 +39,28 @@ task display(){
 		Xr = (diameter/2)*(rightAngularVel+leftAngularVel);
 		A = (diameter/(2*l))*(rightAngularVel-leftAngularVel);
 
-
-		displayTextLine(0, "leftVel: %f", leftAngularVel);
-		displayTextLine(2, "rightVel: %f", rightAngularVel);
 		displayTextLine(5,"Desired Angle: %d",desiredAngle);
 		displayTextLine(7,"Current Angle: %d",currentAngle);
-		displayTextLine(9,"the error %d",desiredAngle-currentAngle);
+		displayTextLine(9,"the error %d",error);
 		displayTextLine(10, "A: %f", A);
 		displayTextLine(12, "Xr: %f", Xr);
 
 	}
 }
 task go(){
-	anglechange();
+	while (true){
+		anglechange();
+	}
 }
 
 task updateangle(){
-	while(true){
+	while (true){
 		currentAngle= getMotorEncoder(rightMotor)/2;
+		error = desiredAngle-currentAngle;
+		if(error<= tolerance){
+			error=0;
+			stopTask (updateangle);
+		}
 	}
 }
 
@@ -75,6 +70,9 @@ task main(){
 
 	diameter = 58;
 	l = 60;
+	k=10;
+	tolerance=.1*180/PI;
+
 
 	currentAngle=0;
 	//desiredRadian=-((2*PI)/3);
