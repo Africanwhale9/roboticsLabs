@@ -12,23 +12,76 @@ float l;
 float k;
 float error;
 float tolerance;
+float angleRemaining;//this is a percentage .25 = 25% of angle left
+float angleGone;//percentage of angle gone
+int currentPower;
+int desiredPower;
+
 
 
 float getAngularVelRad(tMotor motor){
+	float first;
+	float second;
+	first = getMotorEncoder(motor);
+	sleep(10);
+	second = getMotorEncoder(motor);
+	float sign =  first-second;
+
+	if (sign<0){
+		return -((getMotorRPM(motor)*(2*PI))/60);
+	}
 
 
 	return ((getMotorRPM(motor)*(2*PI))/60);
 }
 
-void anglechange(){
+void decelerate(){
+
+	int ratio;
+
+	ratio = 100;
+
 	if(desiredAngle<0){
-		setMotorSync (leftMotor, rightMotor, 100, k*error);
+		ratio = -100;
 	}
-	else{
-		setMotorSync(leftMotor, rightMotor, -100,k*error);
+	
+
+	while (true){
+		setMotorSync (leftMotor, rightMotor, ratio, k*error);
+		sleep(50);
 	}
-	sleep(1000);
+	
 }
+
+
+
+void accelerate(){
+	// accelerate until full power or there is only a percentage of the angle left
+	int ratio;
+
+	ratio = 100;
+
+	if (desiredAngle<0){
+		ratio = -100;
+	}
+
+
+	while((currentPower<desiredPower) &&  (angleGone<angleRemaining)){
+		currentPower+=slewRate;
+		setMotorSync (leftMotor, rightMotor, ratio, currentPower);
+		sleep(100);
+	}
+
+}
+
+
+
+void maintain(){
+	while(angleGone<angleRemaining){
+		sleep(20);//may need a setMotorSync here of it at full power at correct ratio
+	}
+}
+
 
 task display(){
 	while (true){
@@ -48,18 +101,25 @@ task display(){
 	}
 }
 task go(){
-	while (true){
-		anglechange();
-	}
+
+		accelerate();
+
+		// maintain(); this may be unnecessary due to the k*error calculation, if it is above 100 i assume it just puts the motor power at 100
+
+		decelerate();
+	
 }
 
 task updateangle(){
 	while (true){
+
 		currentAngle= getMotorEncoder(rightMotor)/2;
+		angleGone = currentAngle/desiredAngle;
 		error = desiredAngle-currentAngle;
+
 		if(error<= tolerance){
 			error=0;
-			stopTask (updateangle);
+			stopTask (updateangle);//maybe this should be stop all tasks
 		}
 	}
 }
@@ -72,6 +132,11 @@ task main(){
 	l = 60;
 	k=10;
 	tolerance=.1*180/PI;
+	angleRemaining = 1 - .25;
+	slewRate = 4; 
+	currentPower=0;
+	desiredPower=40;
+
 
 
 	currentAngle=0;
