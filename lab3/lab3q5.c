@@ -25,12 +25,12 @@ task main()
 {
 mmperdeg=182.21/365;
 
-//turn(60);
-//foward(500);
-//turn(-90);
-//foward(1000);
-//turn(150);
-//foward(300);
+turn(60);
+foward(500);
+turn(-90);
+foward(1000);
+turn(150);
+foward(300);
 
 
 
