@@ -48,15 +48,24 @@ void decelerate(){
 
 	float decelpower;
 	while (true){
+
+		if(error<= tolerance){
+			error=0;//this should stop the robot once error is within the tolerance range
+			// stopAllTasks();
+		}
+
+
+
 		if( (k* error) < currentPower){
 			decelpower=k*error;
-			}else{
+			}
+		else{
 			decelpower=currentPower;
 		}
 		setMotorSync (leftMotor, rightMotor, ratio, decelpower);
-		sleep(50);
+		// sleep(50); We probably don't want it to sleep at all, but it may not make a difference
 	}
-	stopAllTasks();
+	
 }
 
 
@@ -123,10 +132,10 @@ task updateangle(){
 		angleGone = currentAngle/desiredAngle;
 		error = desiredAngle-currentAngle;
 
-		if(error<= tolerance){
-			error=0;
-			stopTask (updateangle);//maybe this should be stop all tasks
-		}
+		// if(error<= tolerance){
+		// 	error=0;
+		// 	stopTask (updateangle);//maybe this should be stop all tasks
+		// }
 	}
 }
 
