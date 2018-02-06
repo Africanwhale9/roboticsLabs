@@ -92,7 +92,7 @@ task displayTask(){
 	}
 }
 task test(){
-	go(1404.8);
+	go(304.8);
 }
 task slewTask(){
 	slew();
@@ -103,7 +103,7 @@ task trav(){
 
 task main(){
 	speed=0;
-	slewrate=9;
+	slewrate=3;
 	startTask (displayTask,10);
 	startTask (test,10);
 	startTask (trav,10);

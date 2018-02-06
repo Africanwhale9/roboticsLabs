@@ -16,6 +16,7 @@ float angleRemaining;//this is a percentage .25 = 25% of angle left
 float angleGone;//percentage of angle gone
 int currentPower;
 int desiredPower;
+float slewRate;
 
 
 
@@ -39,18 +40,23 @@ void decelerate(){
 
 	int ratio;
 
-	ratio = 100;
+	ratio = -100;
 
 	if(desiredAngle<0){
-		ratio = -100;
+		ratio = 100;
 	}
-	
 
+	float decelpower;
 	while (true){
-		setMotorSync (leftMotor, rightMotor, ratio, k*error);
+		if( (k* error) < currentPower){
+			decelpower=k*error;
+			}else{
+			decelpower=currentPower;
+		}
+		setMotorSync (leftMotor, rightMotor, ratio, decelpower);
 		sleep(50);
 	}
-	
+	stopAllTasks();
 }
 
 
@@ -59,28 +65,28 @@ void accelerate(){
 	// accelerate until full power or there is only a percentage of the angle left
 	int ratio;
 
-	ratio = 100;
+	ratio = -100;
 
 	if (desiredAngle<0){
-		ratio = -100;
+		ratio = 100;
 	}
 
 
 	while((currentPower<desiredPower) &&  (angleGone<angleRemaining)){
 		currentPower+=slewRate;
 		setMotorSync (leftMotor, rightMotor, ratio, currentPower);
-		sleep(100);
+		sleep(1000);
 	}
 
 }
 
 
 
-void maintain(){
-	while(angleGone<angleRemaining){
-		sleep(20);//may need a setMotorSync here of it at full power at correct ratio
-	}
-}
+//void maintain(){
+//	while(angleGone<angleRemaining){
+//		sleep(20);//may need a setMotorSync here of it at full power at correct ratio
+//	}
+//}
 
 
 task display(){
@@ -102,12 +108,12 @@ task display(){
 }
 task go(){
 
-		accelerate();
+	accelerate();
 
-		// maintain(); this may be unnecessary due to the k*error calculation, if it is above 100 i assume it just puts the motor power at 100
+	// maintain(); this may be unnecessary due to the k*error calculation, if it is above 100 i assume it just puts the motor power at 100
 
-		decelerate();
-	
+	decelerate();
+
 }
 
 task updateangle(){
@@ -130,12 +136,12 @@ task main(){
 
 	diameter = 58;
 	l = 60;
-	k=10;
+	k=1;
 	tolerance=.1*180/PI;
 	angleRemaining = 1 - .25;
-	slewRate = 4; 
+	slewRate = 4;
 	currentPower=0;
-	desiredPower=40;
+	desiredPower=50;
 
 
 
