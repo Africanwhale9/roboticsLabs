@@ -39,7 +39,7 @@ void slew(){
 	while(true){
 		disttomax=((((.136*speed)+2.4)*speed)*2)*(slewrate/3);
 		if(totalleft>= distance/2){
-			if(distance-totalleft<=((((.136*speed)+2.4)*speed)*2)*(3/slewrate) || distance-totalright<=((((.136*speed)+2.4)*speed)*2)*(slewrate/3)){
+			if(distance-totalleft<=disttomax || distance-totalright<=disttomax){
 				decrease();
 			}
 		}else{
