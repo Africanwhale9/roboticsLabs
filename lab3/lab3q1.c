@@ -1,4 +1,4 @@
-#pragma config(StandardModel, "EV3_REMBOT")
+#pragma config(StandardModel, "EV3_REMBOT");
 float tolerance;
 int increment;
 int desiredPowerL;
@@ -15,9 +15,10 @@ int powerIncrement;
 
 
 
-int convertRad(float x, tMotor motor){
+float convertRad(float x, tMotor motor){
 
-	return sgn(getMotorSpeed(motor))*((x/60)*360);
+
+	return ((x*(2*PI))/60)*sgn(getMotorSpeed(motor));
 }
 
 void motorspeed(int desiredPower, int *currentPower){
@@ -44,7 +45,7 @@ void motorspeed(int desiredPower, int *currentPower){
 		}
 	}
 
-void angularVelControl(float *desiredSpeed, float *currentSpeed tMotor motor, int *desiredPower, int *currentPower){//desired power may need to be a pointer
+void angularVelControl(float *desiredSpeed, float *currentSpeed, tMotor motor, int *desiredPower, int *currentPower){
 
 	while(true){
 		*currentSpeed = convertRad(getMotorRPM(motor), motor);
@@ -52,6 +53,7 @@ void angularVelControl(float *desiredSpeed, float *currentSpeed tMotor motor, in
 
 		if (abs(*desiredSpeed - *currentSpeed) > tolerance){
 			// need to increase and decrease via slew rate. How do i know what power to use?
+		//	displayTextLine(15,"%f",abs(*desiredSpeed - *currentSpeed));
 			if (*currentSpeed < *desiredSpeed){
 				*desiredPower+=powerIncrement;
 				motorspeed(*desiredPower, currentPower);//increase desired power
@@ -61,7 +63,7 @@ void angularVelControl(float *desiredSpeed, float *currentSpeed tMotor motor, in
 				motorspeed(*desiredPower, currentPower);
 			}
 		}
-		sleep(250);
+		sleep(50);
 	}
 }
 
@@ -105,22 +107,29 @@ task display()
 {
 	while (true){
 
-		displayBigTextLine(0,"RMotor currentSpeed/desiredSpeed: %f/%f",currentSpeedR, desiredSpeedR);//needs to print floats, not ints (%d)
-		displayBigTextLine(8,"LMotor currentSpeed/desiredSpeed: %f/%f",currentSpeedL, desiredSpeedL);
+		displayTextLine(0,"RMotor: %f/%f",currentSpeedR, desiredSpeedR);//needs to print floats, not ints (%d)
+		displayTextLine(8,"LMotor: %f/%f",currentSpeedL, desiredSpeedL);
 	}
 }
 
 
 task main(){
 	tolerance = .05;
-	powerIncrement = 10;
+	powerIncrement = 1;
+	increment = 1;
 
-	desiredSpeedL = 360;
-	desiredSpeedR = 360;
+	desiredSpeedL = 10;
+	desiredSpeedR = 10;
+
+	desiredPowerL=5;
+	desiredPowerR=5;
 
 	startTask(display, 10);
 	startTask(gotask, 10);
 	startTask(motorControlTaskR, 10);
 	startTask(motorControlTaskL, 10);
+	while(true){
+	}
+	// daniel test
 
 }

@@ -4,13 +4,13 @@ float slewrate;
 float totalleft=0;
 float totalright=0;
 float distance;
-float disttomax=((((.136*speed+2.4)*speed)*(slewrate/3))*2);
+
 
 void decrease(){
-	if (speed-slewrate>=15){
+	if (speed-slewrate>=7){
 		speed-=slewrate;
 		}else{
-		speed=10;
+		speed=7;
 	}
 	sleep(250);
 }
@@ -23,24 +23,20 @@ void increase(){
 	}
 	sleep(250);
 }
-
-//void slew(){
-//	while(true){
-//		disttomax=((((.136*speed)+2.4)*speed)*2)*(slewrate/3);
-//		if(distance-totalleft<=((((.136*speed)+2.4)*speed)*2)*(3/slewrate) || distance-totalright<=((((.136*speed)+2.4)*speed)*2)*(slewrate/3)){
-//			decrease();
-//			sleep(3000);
-//			}else{
-//			increase();
-//		}
-//	}
-//}
 void slew(){
 	while(true){
+<<<<<<< HEAD
+		if(distance-totalleft<=((((.136*speed)+2.4)*speed)*2)*(3/slewrate) || distance-totalright<=((((.136*speed)+2.4)*speed)*2)*(slewrate/3)){
+			while (true){
+				if(distance-totalleft<=((((.136*speed)+2.4)*speed)*2)*(3/slewrate) || distance-totalright<=((((.136*speed)+2.4)*speed)*2)*(slewrate/3)){
+					decrease();
+				}
+=======
 		disttomax=((((.136*speed)+2.4)*speed)*2)*(slewrate/3);
 		if(totalleft>= distance/2){
 			if(distance-totalleft<=disttomax || distance-totalright<=disttomax){
 				decrease();
+>>>>>>> f7eda60cb7b80139415950b14b9403f738ac95a2
 			}
 		}else{
 			increase();
@@ -92,7 +88,7 @@ task displayTask(){
 	}
 }
 task test(){
-	go(304.8);
+	go(2804.8);
 }
 task slewTask(){
 	slew();
