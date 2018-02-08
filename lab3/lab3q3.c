@@ -16,7 +16,7 @@ float angleRemaining;//this is a percentage .25 = 25% of angle left
 float angleGone;//percentage of angle gone
 int currentPower;
 int desiredPower;
-float slewRate;
+float turnRate;
 bool decel=false;
 float decelpower;
 
@@ -88,7 +88,7 @@ void accelerate(){
 
 	//&&  (angleGone<angleRemaining)
 	while((currentPower<desiredPower) ){
-		currentPower+=slewRate;
+		currentPower+=turnRate;
 		setMotorSync (leftMotor, rightMotor, ratio, currentPower);
 		sleep(100);
 	}
@@ -155,7 +155,7 @@ task main(){
 	//tolerance=.1*180/PI;
 	tolerance=2;
 	angleRemaining = 1 - .25;
-	slewRate = 3;
+	turnRate = 3;
 	currentPower=0;
 	desiredPower=50;
 

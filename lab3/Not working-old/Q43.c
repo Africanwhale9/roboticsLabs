@@ -26,22 +26,17 @@ void increase(){
 	}
 	sleep(250);
 }
-void slew(){
-	while(true){
-		if(distance-totalleft<=((((.136*speed)+2.4)*speed)*2)*(3/slewrate) || distance-totalright<=((((.136*speed)+2.4)*speed)*2)*(slewrate/3)){
-			while (true){
-				if(distance-totalleft<=((((.136*speed)+2.4)*speed)*2)*(3/slewrate) || distance-totalright<=((((.136*speed)+2.4)*speed)*2)*(slewrate/3)){
-					decrease();
-				}
-			}
-		}else{
-			increase();
-		}
-	}
+
+void reset(){
+	speed=0;
+	slewrate=3;
+	totalleft=0;
+	totalright=0;
+	stops=true;
 }
 
-void go(float dist){
-	distance=dist;
+task test(){
+	distance=reqdist;
 	while (true){
 		if(totalleft<distance || totalright<distance){
 			setMotorSpeed(leftMotor, speed);
@@ -53,8 +48,20 @@ void go(float dist){
 		}
 	}
 }
-
-void distancetravled(){
+task slewTask(){
+		while(true){
+		if(distance-totalleft<=((((.136*speed)+2.4)*speed)*2)*(3/slewrate) || distance-totalright<=((((.136*speed)+2.4)*speed)*2)*(slewrate/3)){
+			while (true){
+				if(distance-totalleft<=((((.136*speed)+2.4)*speed)*2)*(3/slewrate) || distance-totalright<=((((.136*speed)+2.4)*speed)*2)*(slewrate/3)){
+					decrease();
+				}
+			}
+			}else{
+			increase();
+		}
+	}
+}
+task trav(){
 	float leftgonedeg;
 	float rightgonedeg;
 	int reset=0;
@@ -71,43 +78,35 @@ void distancetravled(){
 		reset+=1;
 	}
 }
-void reset(){
-	speed=0;
-	slewrate=3;
-	totalleft=0;
-	totalright=0;
-	stops=true;
-}
 
-task test(){
-	go(reqdist);
-}
-task slewTask(){
-	slew();
-}
-task trav(){
-	distancetravled();
-}
-
-void foward(float dist){
-	reqdist=dist;
-	startTask (test,10);
+task foward(){
 	startTask (trav,10);
+	startTask (test,10);
 	startTask (slewTask,10);
-	while (stops){
+	while (true){
+		if (!stops){
+			stopTask(test);
+			stopTask(trav);
+			stopTask(slewTask);
+			reset();
+			return;
+		}
 	}
-	stopTask(test);
-	stopTask(trav);
-	stopTask(slewTask);
-
 }
-
+void plswork(float dist){
+	reqdist=dist;
+	startTask(foward,10);
+}
 
 task main(){
 	slewrate=3;
-	foward(200);
-	reset();
-	foward(300);
+	plswork(300);
+	sleep(10000);
+	plswork(200);
+	sleep(10000);
+	//foward(200);
+	//reset();
+	//foward(300);
 
 	while(true){}
 }
