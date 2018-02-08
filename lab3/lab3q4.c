@@ -25,18 +25,11 @@ void increase(){
 }
 void slew(){
 	while(true){
-<<<<<<< HEAD
 		if(distance-totalleft<=((((.136*speed)+2.4)*speed)*2)*(3/slewrate) || distance-totalright<=((((.136*speed)+2.4)*speed)*2)*(slewrate/3)){
 			while (true){
 				if(distance-totalleft<=((((.136*speed)+2.4)*speed)*2)*(3/slewrate) || distance-totalright<=((((.136*speed)+2.4)*speed)*2)*(slewrate/3)){
 					decrease();
 				}
-=======
-		disttomax=((((.136*speed)+2.4)*speed)*2)*(slewrate/3);
-		if(totalleft>= distance/2){
-			if(distance-totalleft<=disttomax || distance-totalright<=disttomax){
-				decrease();
->>>>>>> f7eda60cb7b80139415950b14b9403f738ac95a2
 			}
 		}else{
 			increase();
