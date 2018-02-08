@@ -17,6 +17,8 @@ float angleGone;//percentage of angle gone
 int currentPower;
 int desiredPower;
 float slewRate;
+bool decel=false;
+float decelpower;
 
 
 
@@ -37,7 +39,6 @@ float getAngularVelRad(tMotor motor){
 }
 
 void decelerate(){
-
 	int ratio;
 
 	ratio = -100;
@@ -46,26 +47,31 @@ void decelerate(){
 		ratio = 100;
 	}
 
-	float decelpower;
+	//float decelpower;
 	while (true){
+		decel=true;
 
 		if(error<= tolerance){
 			error=0;//this should stop the robot once error is within the tolerance range
-			// stopAllTasks();
+			stopAllTasks();
 		}
 
 
 
 		if( (k* error) < currentPower){
 			decelpower=k*error;
-			}
+		}
 		else{
 			decelpower=currentPower;
 		}
+		if( decelpower<7){
+			decelpower=7;
+		}
 		setMotorSync (leftMotor, rightMotor, ratio, decelpower);
-		// sleep(50); We probably don't want it to sleep at all, but it may not make a difference
+		sleep(50);
+		//We probably don't want it to sleep at all, but it may not make a difference
 	}
-	
+
 }
 
 
@@ -80,11 +86,11 @@ void accelerate(){
 		ratio = 100;
 	}
 
-
-	while((currentPower<desiredPower) &&  (angleGone<angleRemaining)){
+	//&&  (angleGone<angleRemaining)
+	while((currentPower<desiredPower) ){
 		currentPower+=slewRate;
 		setMotorSync (leftMotor, rightMotor, ratio, currentPower);
-		sleep(1000);
+		sleep(100);
 	}
 
 }
@@ -130,7 +136,7 @@ task updateangle(){
 
 		currentAngle= getMotorEncoder(rightMotor)/2;
 		angleGone = currentAngle/desiredAngle;
-		error = desiredAngle-currentAngle;
+		error = abs(desiredAngle-currentAngle);
 
 		// if(error<= tolerance){
 		// 	error=0;
@@ -145,10 +151,11 @@ task main(){
 
 	diameter = 58;
 	l = 60;
-	k=1;
-	tolerance=.1*180/PI;
+	k=.5;
+	//tolerance=.1*180/PI;
+	tolerance=2;
 	angleRemaining = 1 - .25;
-	slewRate = 4;
+	slewRate = 3;
 	currentPower=0;
 	desiredPower=50;
 
@@ -157,7 +164,7 @@ task main(){
 	currentAngle=0;
 	//desiredRadian=-((2*PI)/3);
 	desiredRadian=2*PI;
-	desiredAngle= desiredRadian*180/PI;
+	desiredAngle= (abs(desiredRadian*180/PI));
 	startTask(display, 10);
 	startTask(go, 10);
 	startTask(updateangle, 10);
