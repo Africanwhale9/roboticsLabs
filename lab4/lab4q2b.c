@@ -14,93 +14,34 @@ float tolerance = 2;
 
 task newController(){
 	error = desiredDist - currentDist;
-
 	if(abs(error)>tolerance){//this should take care of the direction automatically
 		desiredPower = k*error*-1;//this will be negative if currentDist>disireddist (must flip the sign)
-	}
-
-	else{
+	}else{
 		desiredPower=0;
 	}
-
-
-
-
 	if(error<0){//error calculation already tells us which way the robot needs to move, if error is negative, it must move forward
 		if((currentPower + slewRate) < desiredPower){
 			currentPower += slewRate;
-		}
-		else{
+		}else{
 			currentPower = desiredPower;
-		}
-		if (currentPower> maxPower){
+		}if (currentPower> maxPower){
 			currentPower = maxPower;
 		}
-	}
-
-	else{//the robot must move backward
+	}else{//the robot must move backward
 		if((currentPower - slewRate) > desiredPower){
 			currentPower -= slewRate;
-		}
-		else{
+		}else{
 			currentPower = desiredPower;
-		}
-
-		if (currentPower< -maxPower){
+		}if (currentPower< -maxPower){
 			currentPower = -maxPower;
 		}
 	}
-
 }
-
-
-
-
-
-
-task controllerTask(){
-	error = desiredDist - currentDist;
-
-	if(abs(error)>tolerance){
-		desiredPower = k*error;
-	}
-	else{
-		desiredPower = 0;
-	}
-
-	if (currentDist>desiredDist){//it should move forward
-		if((currentPower + slewRate) < desiredPower){
-			currentPower += slewRate;
-		}
-		else{
-			currentPower = desiredPower;
-		}
-
-		if (currentPower> maxPower){
-			currentPower = maxPower;
-		}
-
-		else{//move backward
-			if((currentPower - slewRate) > desiredPower){
-				currentPower -= slewRate;
-			}
-			else{
-				currentPower = desiredPower;
-			}
-
-			if (currentPower< -maxPower){
-				currentPower = -maxPower;
-			}
-		}
-	}
-}
-
 
 
 task range(){
 	while(true){
 		currentDist = getUSDistance(sonarSensor);
-
 	}
 }
 
@@ -108,7 +49,6 @@ task display(){
 	while(true){
 		displayBigTextLine(8, "%f cm", currentDist);
 	}
-
 }
 
 task motorControl(){
@@ -118,8 +58,7 @@ task motorControl(){
 	}
 }
 
-task main()
-{
+task main(){
 	startTask(display, 7);
 	startTask(range, 7);
 	startTask(motorControl, 7);
@@ -133,5 +72,43 @@ task main()
 			currentPower=0;
 		}
 	}
-
 }
+
+
+
+// task controllerTask(){
+// 	error = desiredDist - currentDist;
+
+// 	if(abs(error)>tolerance){
+// 		desiredPower = k*error;
+// 	}
+// 	else{
+// 		desiredPower = 0;
+// 	}
+
+// 	if (currentDist>desiredDist){//it should move forward
+// 		if((currentPower + slewRate) < desiredPower){
+// 			currentPower += slewRate;
+// 		}
+// 		else{
+// 			currentPower = desiredPower;
+// 		}
+
+// 		if (currentPower> maxPower){
+// 			currentPower = maxPower;
+// 		}
+
+// 		else{//move backward
+// 			if((currentPower - slewRate) > desiredPower){
+// 				currentPower -= slewRate;
+// 			}
+// 			else{
+// 				currentPower = desiredPower;
+// 			}
+
+// 			if (currentPower< -maxPower){
+// 				currentPower = -maxPower;
+// 			}
+// 		}
+// 	}
+// }

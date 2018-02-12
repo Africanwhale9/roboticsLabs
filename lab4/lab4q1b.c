@@ -6,14 +6,12 @@ void turn(){
 	setMotorSyncEncoder(leftMotor, rightMotor, ratio,825, 100);
 	ratio = ratio*-1;
 }
-task main()
-{
+
+task main(){
 	while(true){
 		if(getBumpedValue(touchSensor)){
 			turn();
 			resetBumpedValue(touchSensor);
 		}
 	}
-
-
 }
