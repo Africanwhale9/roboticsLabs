@@ -8,6 +8,7 @@ task turn(){
 	ratio = ratio*-1;
 }
 
+
 task isMoving(){
 	while(true){
 		if(getMotorRPM(leftMotor)!=0 || getMotorRPM(rightMotor)!=0){
@@ -18,6 +19,7 @@ task isMoving(){
 		}
 	}
 }
+
 
 task didBump(){
 	while (true){
@@ -30,8 +32,9 @@ task didBump(){
 		}
 	}
 }
-task main()
-{
+
+
+task main(){
 	startTask(isMoving, 7);
 	startTask(didBump, 7);
 	while(true){
@@ -42,6 +45,4 @@ task main()
 
 		}
 	}
-
-
 }

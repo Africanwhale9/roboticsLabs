@@ -38,7 +38,4 @@ task main(){
 	startTask(display,7);
 
 	while(true){}
-
-
-
 }
