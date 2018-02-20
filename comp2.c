@@ -38,6 +38,33 @@ void slewRateControl(int distanceReq){
 	stop();
 }
 
+void slewRateControlEncoders(int distanceReq){
+	int currentPower = 0;
+	int desiredPower = 100;
+	int slewRate = 5;
+	int error;
+	int k = 2;
+
+	while (distGone>distanceReq){
+		error = distGone - distanceReq;
+		if(error<desiredPower/2){
+			currentPower = error*k;
+		}
+		else{
+			if (currentPower<desiredPower){
+				currentPower+=slewRate;
+			}
+			else{
+				currentPower=desiredPower;
+			}
+		}
+		setMotorSync (leftMotor, rightMotor, 0, currentPower);
+		sleep(50);
+	}
+
+	stop();
+}
+
 
 
 
@@ -192,7 +219,14 @@ void turn(float deg){
 
 
 task distanceCounter(){
-	//use encoders? wheel turns? Sensor?
+	//use encoders? wheel turns? Sensor? We are only calling this if the distance is greater than the range of the sensor so we can't use the sensor
+	distGone = 0;
+	while (true){
+		resetMotorEncoder(leftMotor);
+		distGone += getMotorEncoder(leftMotor);
+		sleep(50);
+	}
+
 }
 
 
@@ -208,10 +242,13 @@ task main(){
 
 		slewRateControl(robotLength);
 
+		stopTask(distanceCounter);
 
 		turn(180);
 
-		slewRateControl(distGone/2);
+		startTask(distanceCounter, 7);
+
+		slewRateControlEncoders(distGone/2);//need slightly different slew rate for this case, can't use range sensor
 	}
 
 	else{
