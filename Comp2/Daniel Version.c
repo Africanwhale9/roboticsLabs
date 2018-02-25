@@ -48,6 +48,8 @@ void go(float distance){
 // To turn a certian degree
 
 float degree_turned_so_far;
+int degree_global;
+int ratio;
 
 task monitor_deg_of_turn(){
 	float starting_deg_robot_facing=getGyroDegrees(gyroSensor);
@@ -56,17 +58,24 @@ task monitor_deg_of_turn(){
 		degree_turned_so_far= getGyroDegrees(gyroSensor)-starting_deg_robot_facing;
 	}
 }
-
-void turn(int degree){
-	int ratio;
-	if(degree>=1){
-		ratio=100;
-		}else{
-		ratio=-100;
-	}
-	startTask(monitor_deg_of_turn);
-	setMotorSync(leftMotor, rightMotor, ratio, 20);
+task error_task(){
+	int error;
 	while (true){
+		error=degree_turned_so_far-degree_global;
+		if(error>=1){
+			ratio=100;
+			}else{
+			ratio=-100;
+		}
+
+	}
+}
+void turn(int degree){
+	degree_global=degree;
+	startTask(error_task,7);
+	startTask(monitor_deg_of_turn);
+	while (true){
+		setMotorSync(leftMotor, rightMotor, ratio, 20);
 		if(degree_turned_so_far== degree){
 			stopTask(monitor_deg_of_turn);
 			return;
