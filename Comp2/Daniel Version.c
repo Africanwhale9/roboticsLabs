@@ -27,7 +27,7 @@ task monitor_dist_traveled(){
 	}
 }
 
-void go(int distance){
+void go(float distance){
 	startTask(monitor_dist_traveled,7);
 	distance=distance/10; //mm to cm
 	setMotorSpeed(leftMotor, 20);
