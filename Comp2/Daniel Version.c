@@ -29,8 +29,10 @@ task monitor_dist_traveled(){
 
 void go(int distance){
 	startTask(monitor_dist_traveled,7);
+	distance=distance/10; //mm to cm
 	setMotorSpeed(leftMotor, 20);
 	setMotorSpeed(rightMotor, 20);
+
 	while (true){
 		if(total_dist_left== distance || total_dist_right==distance){
 			stopTask(monitor_dist_traveled);
