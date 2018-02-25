@@ -150,9 +150,27 @@ task AccumulateEncoderValues(){//to keep track of how far the robot goes in enco
 
 
 void moveToDistance(int distFromWall, int power){//the use of this function is to get the robot to a certain distance away from the wall
-	setMotorSync(leftMotor,rightMotor, 0, power);
+	int currentPower = 0;
+	float error;
+	int minPower = 4;
+	float gain = 1;
+
 	while(getUSDistance(sonarSensor)>distFromWall){
-		//do nothing, allow the robot to keep moving
+		error = abs(getUSDistance(sonarSensor) - distFromWall)*gain;
+		if(error<power){
+			if(error<minPower){
+				error=minPower;
+			}
+			setMotorSync(leftMotor,rightMotor, 0, error);
+		}
+		else{
+			currentPower+=slewRate;
+			if(currentPower>power){
+				currentPower=power;
+			}
+			setMotorSync(leftMotor,rightMotor, 0, currentPower);
+
+		}
 	}
 	stopMove();//robot has reached required distance, stop
 
@@ -171,10 +189,10 @@ task main(){
 
 	sleep(sleepTime);
 
-	moveToDistance(15, motorPower);//moves within 15 mm of the wall
+	moveToDistance(20, motorPower);//moves within 15 mm of the wall
 
 	resetGyro(gyroSensor);
-	turn(180, 10);//turns 180
+	turn(180, motorPower);//turns 180
 	resetGyro(gyroSensor);
 
 	sleep(sleepTime);
