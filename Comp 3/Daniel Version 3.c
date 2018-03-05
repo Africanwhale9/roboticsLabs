@@ -105,7 +105,7 @@ void get_color(){
 			up_down=true;
 		}
 		else{
-			edge	=true;
+			edege_color	=true;
 		}
 	}
 }
