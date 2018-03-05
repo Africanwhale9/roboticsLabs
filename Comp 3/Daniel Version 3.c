@@ -14,12 +14,12 @@ float y_axis_x_intercepts_color	=35;		// change to correct value
 float edege_color	=60;									// change to correct value
 float board_color	=100;									// change to correct value
 
-int x_axis_y_intercept_needed	=starting_point_x-end_point_x;
-int y_axis_x_intercept_needed	=starting_point_y-end_point_y;
-
 int	global_lines_gone	=0;
-bool left_right	=false;
-bool up_down	=false;
+bool left_right;
+bool up_down;
+bool edge;
+bool right;
+bool left;
 
 
 
@@ -89,9 +89,94 @@ void go(int lines_need_to_go){
 
 
 
-task main()
-{
 
 
+// get line color
+void get_color(){
+	left_right	=false;
+	up_down	=false;
+	edge	=false;
+	float current_color = getColorReflected(colorSensor);
+	if(current_color<= x_axis_y_intercepts_color+3 && current_color>= x_axis_y_intercepts_color-3){
+		left_right=true;
+	}
+	else{
+		if(current_color<= y_axis_x_intercepts_color+3 && current_color>= y_axis_x_intercepts_color-3){
+			up_down=true;
+		}
+		else{
+			edge	=true;
+		}
+	}
+}
+
+
+// to turn allong the x axis
+void face_with_x(){
+	get_color();
+	if(up_down){
+		turn(90);
+	}
+	return;
+}
+
+//goes to where we think the edge is
+void go_to_edge(){
+	int need_to_go;
+	if(starting_point_x< grid_size_x-starting_point_x){
+		need_to_go=starting_point_x;
+		left=true;
+	}
+	else{
+		need_to_go= grid_size_x-starting_point_x;
+		right=true;
+	}
+	go(need_to_go);
+}
+
+//checks if this as an edge
+void check_if_edge(){
+	get_color();
+	if(!edge){
+		turn(180);
+		go(global_lines_gone-1);
+		global_lines_gone=0;
+		go_to_edge();	// now at the edge
+	}
+}
+
+
+task main(){
+	go(1);
+	face_with_x();
+	go_to_edge();
+	check_if_edge();
+	if(right){
+		turn(180);
+		int goes=grid_size_x-end_point_x;
+		go(goes);
+		if(end_point_x>starting_point_x){
+			turn(90);
+			go(end_point_y-starting_point_y);
+		}
+		else{
+			turn(-90);
+			go(starting_point_y-end_point_y);
+		}
+	}
+	else{
+		turn(180);
+		int goes=end_point_x;
+		go(goes);
+		if(end_point_x>starting_point_x){
+			turn(-90);
+			go(end_point_y-starting_point_y);
+		}
+		else{
+			turn(90);
+			go(starting_point_y-end_point_y);
+		}
+	}
+	while(true){}
 
 }
