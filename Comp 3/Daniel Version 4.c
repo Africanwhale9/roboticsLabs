@@ -1,7 +1,7 @@
 #pragma config(StandardModel, "EV3_REMBOT");
 
-int starting_point_x	=1;			// change to correct value
-int starting_point_y	=1;			// change to correct value
+int starting_point_x	=0;			// change to correct value
+int starting_point_y	=0;			// change to correct value
 
 int end_point_x	=4;						// change to correct value
 int end_point_y	=2;						// change to correct value
@@ -9,10 +9,10 @@ int end_point_y	=2;						// change to correct value
 int grid_size_x	=4;						// change to correct value
 int grid_size_y	=2;						// change to correct value
 
-float x_axis_y_intercepts_color	=50;		// change to correct value
-float y_axis_x_intercepts_color	=6;		// change to correct value
-float edege_color	=95;									// change to correct value
-float board_color	=88;									// change to correct value
+float x_axis_y_intercepts_color	=6;		// change to correct value VERTICAL
+float y_axis_x_intercepts_color	=23;		// change to correct value HORIZONTAL
+float edege_color	=23;									// change to correct value
+float board_color	=90;									// change to correct value
 
 int	global_lines_gone	=0;
 bool left_right;
@@ -23,6 +23,11 @@ bool left;
 
 int motorSpeed = 13;
 
+
+
+void stopMoving(){
+	setMotorSync(leftMotor,rightMotor, 0, 0);
+}
 
 
 bool outsideRange(float checkThis, float baseValue, float plus_minus){
@@ -62,13 +67,15 @@ void ratio_finder(){
 	return;
 }
 void turn(int degree){
+	startTask(monitor_deg_of_turn);
 	turn_is_done=false;
 	degree_global=degree;
 	ratio_finder();
-	startTask(monitor_deg_of_turn);
+
+	sleep(100);
 	while (true){
 		setMotorSync(leftMotor, rightMotor, ratio, motorSpeed);
-		if(degree_turned_so_far>= degree){
+		if(abs(degree_turned_so_far)>= abs(degree)){
 			setMotorSync(leftMotor, rightMotor, 0, 0);
 			stopTask(monitor_deg_of_turn);
 			turn_is_done=true;
@@ -86,16 +93,19 @@ void turn(int degree){
 // go past X lines
 void go(int lines_need_to_go){
 	float current_color = getColorReflected(colorSensor);
-	while (global_lines_gone<= lines_need_to_go){//this should be <=, currently it will stop one box before. It needs to detect the far line of the box, not the close line
+	int tmpGone = global_lines_gone;
+	while (global_lines_gone<= lines_need_to_go+tmpGone){//this should be <=, currently it will stop one box before. It needs to detect the far line of the box, not the close line
 		current_color = getColorReflected(colorSensor);
 		setMotorSync(leftMotor,rightMotor,0,motorSpeed);
-		if(outsideRange(current_color, board_color, 8)){ // this conditional is very confusing, make this into a function
+		if(outsideRange(current_color, board_color, 22)){
 			global_lines_gone++;
 			if(global_lines_gone<= lines_need_to_go){//if it hasn't gone enough lines it'll sleep so it gets off the line. Otherwise, it should stop on the line
-				sleep(500);
+				sleep(1000);
 			}
 		}
 	}
+
+	stopMoving();
 	return;
 }
 
@@ -109,15 +119,15 @@ void get_color(){
 	up_down	=false;
 	edge	=false;
 	float current_color = getColorReflected(colorSensor);
-	if(current_color<= x_axis_y_intercepts_color+3 && current_color>= x_axis_y_intercepts_color-3){
+	if(current_color<= x_axis_y_intercepts_color+5 && current_color>= x_axis_y_intercepts_color-5){
 		left_right=true;
 	}
 	else{
-		if(current_color<= y_axis_x_intercepts_color+3 && current_color>= y_axis_x_intercepts_color-3){
+		if(current_color<= y_axis_x_intercepts_color+5 && current_color>= y_axis_x_intercepts_color-5){
 			up_down=true;
 		}
 		else{
-			edege_color	=true;
+			edge	=true;
 		}
 	}
 }
@@ -166,37 +176,54 @@ task display(){
 
 
 task main(){
+	global_lines_gone=0;
 	startTask(display, 7);
 	go(1);
 	face_with_x();//makes it face down the x axis
-	go_to_edge();
-	check_if_edge();
-	if(right){
-		turn(180);
-		int goes=grid_size_x-end_point_x;
-		go(goes);
-		if(end_point_y>starting_point_y){//shouldn't these be y's?
-			turn(90);
-			go(end_point_y-starting_point_y);
-		}
-		else{
-			turn(-90);
-			go(starting_point_y-end_point_y);
-		}
-	}
-	else{
-		turn(180);
-		int goes=end_point_x;
-		go(goes);
-		if(end_point_y>starting_point_y){//here also
-			turn(-90);
-			go(end_point_y-starting_point_y);
-		}
-		else{
-			turn(90);
-			go(starting_point_y-end_point_y);
-		}
-	}
+	//go_to_edge();
+	//check_if_edge();
+	//if(right){
+	//	turn(180);
+	//	int goes=grid_size_x-end_point_x;
+	//	go(goes);
+	//	if(end_point_y>starting_point_y){//shouldn't these be y's?
+	//		turn(90);
+	//		go(end_point_y-starting_point_y);
+	//	}
+	//	else{
+	//		turn(-90);
+	//		go(starting_point_y-end_point_y);
+	//	}
+	//}
+	//else{
+	//	turn(180);
+	//	int goes=end_point_x;
+	//	go(goes);
+	//	if(end_point_y>starting_point_y){//here also
+	//		turn(-90);
+	//		go(end_point_y-starting_point_y);
+	//	}
+	//	else{
+	//		turn(90);
+	//		go(starting_point_y-end_point_y);
+	//	}
+	//}
 	while(true){}
 
 }
+
+
+//task main(){
+//	startTask(display, 7);
+//	go(3);
+
+//	turn(90);
+
+//	turn(-90);
+
+//	turn(180);
+
+//	turn(-180);
+
+//}
+
