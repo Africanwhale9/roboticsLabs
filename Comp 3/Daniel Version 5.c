@@ -1,13 +1,17 @@
 #pragma config(StandardModel, "EV3_REMBOT");
 
 int starting_point_x	=3;			// change to correct value
-int starting_point_y	=1;			// change to correct value
+int starting_point_y	=0;			// change to correct value
 
-int end_point_x	=4;						// change to correct value
-int end_point_y	=2;						// change to correct value
+int end_point_x	=0;						// change to correct value
+int end_point_y	=1;						// change to correct value
 
-int grid_size_x	=4;						// change to correct value
-int grid_size_y	=2;						// change to correct value
+//int grid_size_x	=4;						// change to correct value
+//int grid_size_y	=2;						// change to correct value
+
+
+int grid_size_x	=3;						//for matt's test track
+int grid_size_y	=1;
 
 TLegoColors x_axis_y_intercepts_color	=colorRed;		// change to correct value VERTICAL
 TLegoColors y_axis_x_intercepts_color	=colorBlue;		// change to correct value HORIZONTAL
@@ -133,6 +137,12 @@ void face_with_x(){
 		turn(90);
 	}
 
+	if(edge){
+		turn(180);
+		go(1);
+		face_with_x();
+	}
+
 	return;
 }
 
@@ -152,6 +162,10 @@ void go_to_edge(){//no idea what this function is doing
 
 	if(up_down){
 		need_to_go++;
+	}
+
+	if(need_to_go<1){
+		need_to_go=1;//If in corner it would end up zero, but it should always go at least 1
 	}
 
 	go(need_to_go);//how does it know what direction to go here? Wouldn't it need to turn?
@@ -188,32 +202,32 @@ task main(){
 	face_with_x();//makes it face down the x axis
 	go_to_edge();
 	check_if_edge();
-	//if(right){
-	//	turn(180);
-	//	int goes=grid_size_x-end_point_x;
-	//	go(goes);
-	//	if(end_point_y>starting_point_y){//shouldn't these be y's?
-	//		turn(90);
-	//		go(end_point_y-starting_point_y);
-	//	}
-	//	else{
-	//		turn(-90);
-	//		go(starting_point_y-end_point_y);
-	//	}
-	//}
-	//else{
-	//	turn(180);
-	//	int goes=end_point_x;
-	//	go(goes);
-	//	if(end_point_y>starting_point_y){//here also
-	//		turn(-90);
-	//		go(end_point_y-starting_point_y);
-	//	}
-	//	else{
-	//		turn(90);
-	//		go(starting_point_y-end_point_y);
-	//	}
-	//}
+	if(right){
+		turn(180);
+		int goes=grid_size_x-end_point_x;
+		go(goes+1);
+		if(end_point_y>starting_point_y){//shouldn't these be y's?
+			turn(90);
+			go(end_point_y-starting_point_y+1);
+		}
+		else{
+			turn(-90);
+			go(starting_point_y-end_point_y+1);
+		}
+	}
+	else{
+		turn(180);
+		int goes=end_point_x;
+		go(goes+1);
+		if(end_point_y>starting_point_y){//here also
+			turn(-90);
+			go(end_point_y-starting_point_y+1);
+		}
+		else{
+			turn(90);
+			go(starting_point_y-end_point_y+1);
+		}
+	}
 	while(true){}
 
 }
