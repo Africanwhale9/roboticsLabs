@@ -1,16 +1,16 @@
 #pragma config(StandardModel, "EV3_REMBOT");
 
-int starting_point_x	=1;			// change to correct value
+int starting_point_x	=3;			// change to correct value
 int starting_point_y	=1;			// change to correct value
 
 int end_point_x	=4;						// change to correct value
 int end_point_y	=2;						// change to correct value
 
-int grid_size_x	=5;						// change to correct value
-int grid_size_y	=3;						// change to correct value
+int grid_size_x	=4;						// change to correct value
+int grid_size_y	=2;						// change to correct value
 
-TLegoColors x_axis_y_intercepts_color	=colorBlue;		// change to correct value VERTICAL
-TLegoColors y_axis_x_intercepts_color	=colorRed;		// change to correct value HORIZONTAL
+TLegoColors x_axis_y_intercepts_color	=colorRed;		// change to correct value VERTICAL
+TLegoColors y_axis_x_intercepts_color	=colorBlue;		// change to correct value HORIZONTAL
 TLegoColors edege_color	=colorBlack;									// change to correct value
 TLegoColors board_color	=colorWhite;									// change to correct value
 
@@ -79,6 +79,10 @@ void turn(int degree){
 
 // go past X lines
 void go(int lines_need_to_go){
+
+	setMotorSync(leftMotor,rightMotor,0,motorSpeed);//to make it move off of line if on one
+	sleep(500);
+
 	float current_color;
 	global_lines_gone=0;
 	int tmpGone = global_lines_gone;
@@ -107,11 +111,11 @@ void get_color(){
 	up_down	=false;
 	edge	=false;
 	float current_color = getColorName(colorSensor);
-	if(current_color!= x_axis_y_intercepts_color){
+	if(current_color== x_axis_y_intercepts_color){
 		left_right=true;
 	}
 	else{
-		if(current_color!= y_axis_x_intercepts_color){
+		if(current_color== y_axis_x_intercepts_color){
 			up_down=true;
 		}
 		else{
@@ -128,6 +132,7 @@ void face_with_x(){
 	if(up_down){
 		turn(90);
 	}
+
 	return;
 }
 
@@ -144,7 +149,12 @@ void go_to_edge(){//no idea what this function is doing
 		need_to_go= grid_size_x-starting_point_x;
 		right=true;
 	}
-	go(need_to_go+1);//how does it know what direction to go here? Wouldn't it need to turn?
+
+	if(up_down){
+		need_to_go++;
+	}
+
+	go(need_to_go);//how does it know what direction to go here? Wouldn't it need to turn?
 }
 
 //checks if this as an edge
@@ -153,9 +163,15 @@ void check_if_edge(){
 	if(!edge){
 		turn(180);
 		sleep(1000);
-		go(global_lines_gone+1);
-		global_lines_gone=0;
-		go_to_edge();	// now at the edge
+
+		TLegoColors current_color = getColorName(colorSensor);
+
+		while(current_color!=colorBlack){
+			setMotorSync(leftMotor,rightMotor,0,motorSpeed);
+
+			current_color = getColorName(colorSensor);
+		}
+		stopMoving();
 	}
 }
 
