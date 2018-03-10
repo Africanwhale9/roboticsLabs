@@ -33,6 +33,14 @@ void stopMoving(){
 	setMotorSync(leftMotor,rightMotor, 0, 0);
 }
 
+void backup(){
+	setMotorSync(leftMotor,rightMotor, 0, motorSpeed*-1);
+	sleep(600);
+	stopMoving();
+}
+
+
+
 
 // To turn a certian degree
 float degree_turned_so_far;
@@ -58,6 +66,23 @@ void ratio_finder(){
 	return;
 }
 void turn(int degree){
+	int degreeOffset = 7;
+	bool backup_after = false;
+
+	if(abs(degree)==90){
+		backup_after = true;
+	}
+
+	backup();
+
+	if(degree>0){
+		degree-=degreeOffset;
+	}
+	else{
+		degree+=degreeOffset;
+	}
+
+
 	startTask(monitor_deg_of_turn);
 	turn_is_done=false;
 	degree_global=degree;
@@ -70,6 +95,9 @@ void turn(int degree){
 			setMotorSync(leftMotor, rightMotor, 0, 0);
 			stopTask(monitor_deg_of_turn);
 			turn_is_done=true;
+			if(backup_after){
+				backup();
+			}
 			return;
 		}
 	}
@@ -85,7 +113,7 @@ void turn(int degree){
 void go(int lines_need_to_go){
 
 	setMotorSync(leftMotor,rightMotor,0,motorSpeed);//to make it move off of line if on one
-	sleep(500);
+	sleep(250);
 
 	float current_color;
 	global_lines_gone=0;
@@ -237,12 +265,12 @@ task main(){
 	//startTask(display, 7);
 	//go(3);
 
-	//turn(90);
+//	turn(90);
 
-	//turn(-90);
+//	turn(-90);
 
-	//turn(180);
+//	turn(180);
 
-	//turn(-180);
+//	turn(-180);
 
 //}
